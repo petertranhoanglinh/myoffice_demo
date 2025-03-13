@@ -1,14 +1,24 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation"; // Import usePathname từ Next.js
 import { MyProgram } from "../models/myprogram.model";
 import { getPrograms } from "../services/my_program.service";
 
 interface MenuContextType {
   menuTree: { parent: MyProgram; children: MyProgram[] }[];
+  activeMenu: string | null;
+
+  activeMenuChild: string | null;
 }
+
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
+
 export const MenuProvider = ({ children }: { children: React.ReactNode }) => {
   const [menuTree, setMenuTree] = useState<{ parent: MyProgram; children: MyProgram[] }[]>([]);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeMenuChild, setActiveMenuChild] = useState<string | null>(null);
+  const pathname = usePathname(); // Lấy đường dẫn hiện tại
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -24,8 +34,29 @@ export const MenuProvider = ({ children }: { children: React.ReactNode }) => {
     };
     fetchData();
   }, []);
-  return <MenuContext.Provider value={{ menuTree }}>{children}</MenuContext.Provider>;
+
+  // Cập nhật activeMenu khi pathname thay đổi
+    useEffect(() => {
+        menuTree.forEach(({  children }) => {
+            children.forEach((child) => {
+                if (pathname === child.linkInfo) {
+                    setActiveMenuChild(child.prgId);
+                    setActiveMenu(child.pid);
+                }
+            });
+        });
+    }, [pathname, menuTree]);
+
+    console.log(activeMenu);
+    console.log(activeMenuChild)
+
+  return (
+    <MenuContext.Provider value={{ menuTree, activeMenu  , activeMenuChild}}>
+      {children}
+    </MenuContext.Provider>
+  );
 };
+
 export const useMenu = () => {
   const context = useContext(MenuContext);
   if (!context) {
@@ -33,6 +64,7 @@ export const useMenu = () => {
   }
   return context;
 };
+
 const buildMenuTree = (menuItems: MyProgram[]): { parent: MyProgram; children: MyProgram[] }[] => {
   const parentMenus: { parent: MyProgram; children: MyProgram[] }[] = [];
 

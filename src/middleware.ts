@@ -7,7 +7,13 @@ import { MemberDataLogin } from './app/models/member-data-login.model';
 export function middleware(req: NextRequest) {
     const token = req.cookies.get('token');
     const { pathname } = req.nextUrl;
-    if (pathname.startsWith('/api/login') || pathname.startsWith('/api/register')) {
+    const allowedPaths = [
+        "/api/login",
+        "/api/register",
+        "/api/member",
+    ];
+    
+    if (allowedPaths.some((path) => pathname.startsWith(path))) {
         return NextResponse.next();
     }
     if (!token) {

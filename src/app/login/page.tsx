@@ -1,4 +1,5 @@
 "use client"; // Quan trọng: Để Next.js hiểu đây là Client Component
+import { useRouter } from "next/navigation";
 import {  useState } from "react";
 
 
@@ -7,6 +8,7 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
  
 
@@ -55,6 +57,13 @@ export default function Login() {
           </div>
           <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
             Login
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/register")}
+            className="w-full bg-gray-600 text-white py-2 rounded-md hover:bg-gray-700 mt-2"
+          >
+            Register
           </button>
         </form>
       </div>
