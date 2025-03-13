@@ -4,6 +4,7 @@ import "./globals.css";
 
 import Header from "../components/header"; 
 import Image from "next/image";
+import { MenuProvider } from "./context/MenuContext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,8 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-          <Header />
-        {children}
+          <MenuProvider> {/* Bọc MenuProvider */}
+            <Header />
+            {children}
+      
+        </MenuProvider>
+          
 
         <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
