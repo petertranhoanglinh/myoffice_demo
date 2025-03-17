@@ -12,6 +12,7 @@
     "@azure/app-configuration": "^1.8.0",
     "@azure/identity": "^4.7.0",
     "@azure/keyvault-secrets": "^4.9.0",
+    "@reduxjs/toolkit": "^2.6.1",
     "axios": "^1.8.2",
     "bootstrap": "^5.3.3",
     "jwt-decode": "^4.0.0",
@@ -24,6 +25,7 @@
     "oracledb": "^6.8.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
     "wowcns_myoffice": "file:"
   },
   "devDependencies": {

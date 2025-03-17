@@ -1,10 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useMenu } from "@/app/context/MenuContext";
 import { MyProgram } from "@/app/models/myprogram.model";
+import { RootState } from "@/store/store";
+import { toggleTheme } from "@/store/slice/common/themeSlice";
+import { useSelector, useDispatch } from "react-redux";
 
 export default function Header() {
     const router = useRouter();
@@ -12,9 +15,13 @@ export default function Header() {
     const { menuTree } = useMenu(); 
     const { isLoggedIn } = useAuth();
     const { activeMenu , activeMenuChild } = useMenu(); 
+    const theme = useSelector((state: RootState) => state.theme.mode);
+
+     const dispatch = useDispatch();
 
 
     useEffect(() => {
+        document.documentElement.classList.toggle("dark", theme === "dark");
        
     }, []);
 
@@ -81,6 +88,9 @@ export default function Header() {
                         </div>
                     ))}
                 </nav>
+                <button onClick={() => dispatch(toggleTheme())} className="p-2 rounded-md bg-gray-200 text-black dark:bg-gray-800 dark:text-white">
+                        {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                    </button>
 
                 {isLoggedIn ? (
                     <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer">
