@@ -1,6 +1,8 @@
 "use client"; // Quan trọng: Để Next.js hiểu đây là Client Component
+import { setIsHeader } from "@/store/slice/common/headerSlice";
 import { useRouter } from "next/navigation";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 
 
@@ -9,6 +11,18 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Tắt Header khi vào trang LoginPay
+    dispatch(setIsHeader(false));
+
+    // Khi rời khỏi trang, bật lại Header nếu cần
+    return () => {
+      dispatch(setIsHeader(true));
+    };
+  }, [dispatch]);
+
 
  
 

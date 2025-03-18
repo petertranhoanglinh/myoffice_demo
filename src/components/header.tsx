@@ -3,27 +3,54 @@ import { useState, useEffect } from "react";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useMenu } from "@/app/context/MenuContext";
-import { MyProgram } from "@/app/models/myprogram.model";
-import { RootState } from "@/store/store";
+import { RootState , AppDispatch } from "@/store/store";
 import { toggleTheme } from "@/store/slice/common/themeSlice";
+import { searchMyProgramAction } from "@/store/slice/common/headerSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { MyProgram } from "@/app/models/myprogram.model";
+
+
+// Hàm build menu tree
+const buildMenuTree = (menuItems: MyProgram[]): { parent: MyProgram; children: MyProgram[] }[] => {
+    const parentMenus: { parent: MyProgram; children: MyProgram[] }[] = [];
+    menuItems = menuItems.filter(x => x.prgKind == 'mo')
+    menuItems.forEach((item) => {
+      if (Number(item.menuLv) === 1) {
+        parentMenus.push({ parent: item, children: [] });
+      }
+    });
+  
+    menuItems.forEach((item) => {
+      if (Number(item.menuLv) === 2 && item.pid) {
+        const parentMenu = parentMenus.find((menu) => menu.parent.prgId === item.pid);
+        if (parentMenu) {
+          parentMenu.children.push(item);
+        }
+      }
+    });
+  
+    return parentMenus.sort((a, b) => Number(a.parent.sortNo) - Number(b.parent.sortNo));
+  };
+  
 
 export default function Header() {
     const router = useRouter();
+    const dispatch = useDispatch<AppDispatch>();
     const [menuOpen, setMenuOpen] = useState(false);
-    const { menuTree } = useMenu(); 
     const { isLoggedIn } = useAuth();
-    const { activeMenu , activeMenuChild } = useMenu(); 
     const theme = useSelector((state: RootState) => state.theme.mode);
+    const { items: rawMenuData, loading , isHeader } = useSelector((state: RootState) => state.myprogram);
 
-     const dispatch = useDispatch();
-
+    // Chuyển đổi MyProgram[] thành menuTree
+    const menuTree = buildMenuTree(rawMenuData);
 
     useEffect(() => {
         document.documentElement.classList.toggle("dark", theme === "dark");
-       
     }, [theme]);
+
+    useEffect(() => {
+        dispatch(searchMyProgramAction({})); // Gọi API lấy menu thô
+    }, [dispatch]);
 
     const handleLogout = () => {
         localStorage.removeItem("authToken");
@@ -32,72 +59,66 @@ export default function Header() {
         window.location.href = "/login";
     };
 
-    const handleLink = (link: MyProgram) => {
-        if (!link) return;
-        router.push(link.linkInfo);
+    const handleLink = (link: string) => {
+        router.push(link);
     };
-    const  clickLink = (link:string) =>{
-        router.push(link)
-    }
+
+
+    if (!isHeader) return null;
 
     return (
-        <header  className={`p-4 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-blue-600 text-black"}`} >
+        <header className={`p-4 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-blue-600 text-black"}`}>
             <div className="container mx-auto flex justify-between items-center">
-                <a onClick={() => clickLink("/")} className="text-xl font-bold cursor-pointer">
+                <a onClick={() => handleLink("/")} className="text-xl font-bold cursor-pointer">
                     MYOFFICE DEMO
                 </a>
 
-                <nav className="hidden md:flex space-x-6">
-                    {menuTree.map(({ parent, children }) => (
-                        <div key={parent.prgId} className="relative group">
-                            {parent.linkInfo ? (
-                                <a 
-                                    onClick={() => handleLink(parent)}
-                                    className={`hover:underline px-3 py-2 cursor-pointer 
-                                        ${activeMenu === parent.prgId ? "bg-white text-blue-600 rounded" : ""}`}
-                                >
-                                    {parent.prgNameEn}
-                                </a>
-                            ) : (
-                                <span className="px-3 py-2 text-gray-400">{parent.prgNameEn}</span>
-                            )}
+                {/* Hiển thị menu nếu dữ liệu đã tải */}
+                {loading ? (
+                    <p>Loading menu...</p>
+                ) : (
+                    <nav className="hidden md:flex space-x-6">
+                        {menuTree.map(({ parent, children }) => (
+                            <div key={parent.prgId} className="relative group">
+                                {parent.linkInfo ? (
+                                    <a
+                                        onClick={() => handleLink(parent.linkInfo)}
+                                        className="hover:underline px-3 py-2 cursor-pointer"
+                                    >
+                                        {parent.prgNameEn}
+                                    </a>
+                                ) : (
+                                    <span className="px-3 py-2 text-gray-400">{parent.prgNameEn}</span>
+                                )}
 
-                            {/* Hiển thị submenu */}
-                            {children.length > 0 && (
-                                <div className="absolute left-0 mt-2 hidden group-hover:flex flex-col bg-white text-black shadow-lg rounded-md w-48 
-                                opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out z-50 pointer-events-none 
-                                group-hover:pointer-events-auto before:absolute before:-top-2 before:left-0 before:w-full before:h-2">
-                                    {children.map((sub) => (
-                                        sub.linkInfo ? (
+                                {children.length > 0 && (
+                                    <div className="absolute left-0 mt-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 flex flex-col bg-white text-black shadow-lg rounded-md w-48 transition-all duration-200 ease-in-out z-50">
+                                        {children.map((sub) => (
                                             <a
                                                 key={sub.prgId}
-                                                onClick={() => handleLink(sub)}
-                                                className={`block px-4 py-2 hover:bg-gray-200 cursor-pointer 
-                                                    ${activeMenuChild === sub.prgId ? "bg-gray-300" : ""}`}
+                                                onClick={() => handleLink(sub.linkInfo)}
+                                                className="block px-4 py-2 hover:bg-gray-200 cursor-pointer"
                                             >
                                                 {sub.prgNameEn}
                                             </a>
-                                        ) : (
-                                            <span key={sub.prgId} className="block px-4 py-2 text-gray-400">
-                                                {sub.prgNameEn}
-                                            </span>
-                                        )
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </nav>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </nav>
+                )}
+
                 <button onClick={() => dispatch(toggleTheme())} className="p-2 rounded-md bg-gray-200 text-black dark:bg-gray-800 dark:text-white">
-                        {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
+                    {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                </button>
 
                 {isLoggedIn ? (
                     <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer">
                         Logout
                     </button>
                 ) : (
-                    <button onClick={() => clickLink("/login")} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer">
+                    <button onClick={() => handleLink("/login")} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer">
                         Login
                     </button>
                 )}
@@ -111,33 +132,15 @@ export default function Header() {
                 <nav className="md:hidden bg-blue-700 p-4 mt-2 rounded-lg">
                     {menuTree.map(({ parent, children }) => (
                         <div key={parent.prgId} className="border-b border-blue-500">
-                            {parent.linkInfo ? (
-                                <a 
-                                    onClick={() => { handleLink(parent); setMenuOpen(false); }} 
-                                    className={`block py-2 px-3 hover:bg-blue-500 rounded cursor-pointer 
-                                        ${activeMenu === parent.prgId ? "bg-white text-blue-600" : ""}`}
-                                >
-                                    {parent.prgNameEn}
-                                </a>
-                            ) : (
-                                <span className="block py-2 px-3 text-gray-400">{parent.prgNameEn}</span>
-                            )}
-
+                            <a onClick={() => { handleLink(parent.linkInfo); setMenuOpen(false); }} className="block py-2 px-3 hover:bg-blue-500 rounded cursor-pointer">
+                                {parent.prgNameEn}
+                            </a>
                             {children.length > 0 && (
                                 <div className="pl-4">
                                     {children.map((sub) => (
-                                        sub.linkInfo ? (
-                                            <a 
-                                                key={sub.prgId} 
-                                                onClick={() => { handleLink(sub); setMenuOpen(false); }} 
-                                                className={`block py-1 px-3 text-sm text-gray-200 hover:bg-blue-500 rounded cursor-pointer 
-                                                    ${activeMenuChild === sub.prgId ? "bg-gray-300" : ""}`}
-                                            >
-                                                {sub.prgNameEn}
-                                            </a>
-                                        ) : (
-                                            <span key={sub.prgId} className="block py-1 px-3 text-sm text-gray-400">{sub.prgNameEn}</span>
-                                        )
+                                        <a key={sub.prgId} onClick={() => { handleLink(sub.linkInfo); setMenuOpen(false); }} className="block py-1 px-3 text-sm text-gray-200 hover:bg-blue-500 rounded cursor-pointer">
+                                            {sub.prgNameEn}
+                                        </a>
                                     ))}
                                 </div>
                             )}
