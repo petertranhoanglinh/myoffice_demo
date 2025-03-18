@@ -28,18 +28,23 @@ export default function RootLayout({
 }>) {
   return (
     <StoreProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <ThemeProvider> {/* Bọc ThemeProvider để đổi theme */}
+     
+        <html lang="en">
+        <ThemeProvider>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
             <MenuProvider>
               <Header />
-              {children}
+             
+                 {children}
+          
             </MenuProvider>
+          </body>
           </ThemeProvider>
-        </body>
-      </html>
+        </html>
+
+
     </StoreProvider>
   );
 }

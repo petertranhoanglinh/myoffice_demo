@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
    
     const connection = await getOracleConnection();
     const result = await connection.execute<OracleResult>(
-      "SELECT * FROM MY_PROGRAM WHERE PRG_KIND = 'mo' AND USE_YN = 'Y' " 
+      "SELECT * FROM MY_PROGRAM WHERE PRG_KIND = 'mo' and use_yn = 'Y'" 
     );
 
     if (!result.rows || result.rows.length === 0) {

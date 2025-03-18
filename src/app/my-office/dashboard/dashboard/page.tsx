@@ -24,18 +24,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className={`bg-blue-900 text-white w-64 p-5 transition-transform ${sidebarOpen ? "translate-x-0" : "-translate-x-64"} fixed h-full md:relative`}>
-        <h4 className="text-center text-lg font-bold mb-5">📊 Dashboard</h4>
-        <ul className="space-y-3">
-          <li className="hover:bg-blue-700 p-2 rounded-md cursor-pointer">🏠 Trang chủ</li>
-          <li className="hover:bg-blue-700 p-2 rounded-md cursor-pointer">📦 Sản phẩm</li>
-          <li className="hover:bg-blue-700 p-2 rounded-md cursor-pointer">🛒 Đơn hàng</li>
-          <li className="hover:bg-blue-700 p-2 rounded-md cursor-pointer">📈 Báo cáo</li>
-          <li className="hover:bg-blue-700 p-2 rounded-md cursor-pointer">⚙ Cài đặt</li>
-        </ul>
-      </aside>
-
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Navbar */}

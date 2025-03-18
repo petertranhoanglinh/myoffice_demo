@@ -1,5 +1,5 @@
 // src/store/StoreProvider.tsx
-"use client"; // Bắt buộc dùng vì Redux cần client-side rendering
+"use client"; 
 
 import { ReactNode } from "react";
 import { Provider } from "react-redux";

@@ -23,7 +23,7 @@ export default function Header() {
     useEffect(() => {
         document.documentElement.classList.toggle("dark", theme === "dark");
        
-    }, []);
+    }, [theme]);
 
     const handleLogout = () => {
         localStorage.removeItem("authToken");
@@ -41,7 +41,7 @@ export default function Header() {
     }
 
     return (
-        <header className="bg-blue-600 text-white p-4">
+        <header  className={`p-4 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-blue-600 text-black"}`} >
             <div className="container mx-auto flex justify-between items-center">
                 <a onClick={() => clickLink("/")} className="text-xl font-bold cursor-pointer">
                     MYOFFICE DEMO

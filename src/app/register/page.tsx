@@ -1,6 +1,6 @@
 "use client";
 import {  useState } from "react";
-import { saveMember } from "../services/member.service";
+import memberService from "../services/member.service";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -46,7 +46,7 @@ export default function Register() {
     
     console.log("Registered Data:", formData);
   
-    const result = await saveMember(formData); // Gọi API lưu thành viên
+    const result = await memberService.saveMember(formData); // Gọi API lưu thành viên
 
   
     if (result.ok) {
