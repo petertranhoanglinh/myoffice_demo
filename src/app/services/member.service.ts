@@ -1,8 +1,7 @@
 import axios from "axios";
 import { MemberModel } from "../models/member.mode";
 
-const apiUrl = "/api/member"; // API endpoint
-const apiMemberSearch = "https://v611.wownet.biz/api/member/search";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
 const memberService = {
   // API tạo thành viên
@@ -12,14 +11,12 @@ const memberService = {
       return response.data;
     } catch (error) {
       console.error("Error saving member:", error);
-      throw error; // Nên throw để xử lý lỗi phía trên
+      throw error; 
     }
   },
-
-  // API tìm kiếm thành viên
   async searchMember(query: any): Promise<MemberModel[]> {
     try {
-      const response = await axios.post<MemberModel[]>(apiMemberSearch, query);
+      const response = await axios.post<MemberModel[]>(apiUrl , query);
       return response.data;
     } catch (error) {
       console.error("Error searching members:", error);

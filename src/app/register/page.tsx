@@ -3,7 +3,7 @@ import {  useState } from "react";
 import memberService from "../services/member.service";
 
 export default function Register() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({  
     username: "",
     email: "",
     mobile: "",
